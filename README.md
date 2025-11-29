@@ -1,4 +1,4 @@
-# Hello there'!'
+# Hello there
 
 This is my first go api, and I'm very excited with the language and the new features.
 But I'm not a professional go programmer, so forgive me the for the bad patterns
