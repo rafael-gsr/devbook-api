@@ -18,7 +18,7 @@ type User struct {
 }
 
 func (user *User) Prepare() error {
-	if error := user.validate(); error != nil {
+	if error := user.validateIsEmpty(); error != nil {
 		return error
 	}
 
@@ -27,7 +27,7 @@ func (user *User) Prepare() error {
 }
 
 // Validate checks the values of the struct and says if is fullfilled
-func (user *User) validate() error {
+func (user *User) validateIsEmpty() error {
 	if user.Name == "" {
 		return errors.New("the name field is required and could not be empty")
 	}
