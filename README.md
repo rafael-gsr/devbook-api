@@ -1,9 +1,9 @@
 # Hello there
 
-This is my first go api, and I'm very excited with the language and the new features.
+This is my first go api, and I'm very excited with the language and the new features.\n
 But I'm not a professional go programmer, so forgive me the for the bad patterns
-that will be written kkkkk.
-If you want to give me some advice, please do it. You are welcome.
+that will be written kkkkk. \n
+If you want to give me some advice, please do it. You are welcome.\n
 
 ## The project
 
