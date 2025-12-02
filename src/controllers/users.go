@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strings"
 
 	"api/src/database"
 	"api/src/model"
@@ -15,9 +16,21 @@ import (
 
 // GetUser gets the user inside database
 func GetUser(w http.ResponseWriter, r *http.Request) {
-	if _, error := w.Write([]byte("get")); error != nil {
-		log.Fatal(error)
+	nameOrNick := strings.ToLower(r.URL.Query().Get("user"))
+	db, error := database.Connect()
+	if error != nil {
+		responses.Error(w, http.StatusInternalServerError, error)
 	}
+	defer db.Close()
+
+	repository := repositories.NewUserRepository(db)
+
+	users, error := repository.Find(nameOrNick)
+	if error != nil {
+		responses.Error(w, http.StatusBadRequest, error)
+	}
+
+	responses.JSON(w, http.StatusOK, users)
 }
 
 // GetUserByID gets the user inside database

@@ -2,8 +2,10 @@
 package repositories
 
 import (
-	"api/src/model"
 	"database/sql"
+	"fmt"
+
+	"api/src/model"
 )
 
 // Users represents the users repository
@@ -36,4 +38,28 @@ func (repository Users) Create(user model.User) (uint64, error) {
 	}
 
 	return uint64(lastInsertID), nil
+}
+
+func (repository Users) Find(nameOrNick string) ([]model.User, error) {
+	nameOrNick = fmt.Sprintf("%%%s%%", nameOrNick) // %nameOrNick%
+	lines, error := repository.db.Query("select id, name, nick, email, createdAt from users where name like ? or nick like ?", nameOrNick, nameOrNick)
+	if error != nil {
+		return nil, error
+	}
+
+	defer lines.Close()
+
+	var users []model.User
+
+	for lines.Next() {
+		var user model.User
+
+		if error = lines.Scan(&user.ID, &user.Name, &user.Nick, &user.Email, &user.CreatedAt); error != nil {
+			return nil, error
+		}
+
+		users = append(users, user)
+	}
+
+	return users, nil
 }
