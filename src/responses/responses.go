@@ -13,6 +13,10 @@ func JSON(w http.ResponseWriter, statusCode int, data any) {
 
 	w.WriteHeader(statusCode)
 
+	if data == nil {
+		return
+	}
+
 	if error := json.NewEncoder(w).Encode(data); error != nil {
 		log.Fatal(error)
 	}
