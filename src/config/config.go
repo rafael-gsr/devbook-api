@@ -13,6 +13,9 @@ var (
 	// MySQLConnection is the string that connects with the database
 	MySQLConnection = ""
 
+	// SecretKey is the key used by jwt to sign tokens
+	SecretKey = ""
+
 	// Port is the application run port
 	Port = ""
 )
@@ -26,6 +29,7 @@ func LoadEnv() {
 	}
 
 	Port = os.Getenv("API_PORT")
+	SecretKey = os.Getenv("JWT_SALT")
 
 	if len(Port) == 0 {
 		Port = ":9000"
