@@ -90,7 +90,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if error = user.Prepare(); error != nil {
+	if error = user.Prepare("create"); error != nil {
 		responses.Error(w, http.StatusBadRequest, error)
 		return
 
