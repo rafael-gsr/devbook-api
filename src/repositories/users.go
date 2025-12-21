@@ -83,6 +83,23 @@ func (repository Users) FindByID(ID uint64) (model.User, error) {
 	return user, nil
 }
 
+func (repository Users) GetPasswordAndID(email string) (model.User, error) {
+	user := model.User{}
+	lines, error := repository.db.Query("select id, password from users where email = ?", email)
+	if error != nil {
+		return user, nil
+	}
+	defer lines.Close()
+
+	if lines.Next() {
+		error = lines.Scan(&user.ID, &user.Password)
+		if error != nil {
+			return user, error
+		}
+	}
+
+	return user, nil
+}
 
 func (repository Users) Update(ID uint64, body model.User) error {
 	statement, error := repository.db.Prepare("update users set name = ?, nick = ?, email = ? where id = ?")
