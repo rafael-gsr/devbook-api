@@ -5,6 +5,10 @@ import (
 	"errors"
 	"strings"
 	"time"
+
+	"api/src/security"
+
+	"github.com/badoux/checkmail"
 )
 
 // User represents the social app user
@@ -17,17 +21,20 @@ type User struct {
 	CreatedAt time.Time `json:"createdAt"`
 }
 
-func (user *User) Prepare() error {
-	if error := user.validateIsEmpty(); error != nil {
+func (user *User) Prepare(step string) error {
+	if error := user.validateIsEmpty(step); error != nil {
 		return error
 	}
 
-	user.format()
+	if error := user.format(step); error != nil {
+		return error
+	}
+
 	return nil
 }
 
 // Validate checks the values of the struct and says if is fullfilled
-func (user *User) validateIsEmpty() error {
+func (user *User) validateIsEmpty(step string) error {
 	if user.Name == "" {
 		return errors.New("the name field is required and could not be empty")
 	}
@@ -40,7 +47,11 @@ func (user *User) validateIsEmpty() error {
 		return errors.New("the email field is required and could not be empty")
 	}
 
-	if user.Password == "" {
+	if error := checkmail.ValidateFormat(user.Email); error != nil {
+		return errors.New("User email format is not valid")
+	}
+
+	if user.Password == "" && step == "create" {
 		return errors.New("the password field is required and could not be empty")
 	}
 
