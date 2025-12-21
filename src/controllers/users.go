@@ -116,9 +116,46 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 
 // PutUser gets the user inside database
 func PutUser(w http.ResponseWriter, r *http.Request) {
-	if _, error := w.Write([]byte("put")); error != nil {
-		log.Fatal(error)
+	params := mux.Vars(r)
+	ID, error := strconv.ParseUint(params["userID"], 10, 64)
+	if error != nil {
+		responses.Error(w, http.StatusBadRequest, error)
+		return
 	}
+
+	newBody, error := io.ReadAll(r.Body)
+	if error != nil {
+		responses.Error(w, http.StatusBadRequest, error)
+		return
+	}
+
+	var user model.User
+
+	if error = json.Unmarshal(newBody, &user); error != nil {
+		responses.Error(w, http.StatusBadRequest, error)
+		return
+	}
+
+	if error = user.Prepare("update"); error != nil {
+		responses.Error(w, http.StatusBadRequest, error)
+		return
+	}
+
+	db, error := database.Connect()
+	if error != nil {
+		responses.Error(w, http.StatusInternalServerError, error)
+		return
+	}
+	defer closeDB(db)
+
+	repository := repositories.NewUserRepository(db)
+	error = repository.Update(ID, user)
+	if error != nil {
+		responses.Error(w, http.StatusUnprocessableEntity, error)
+		return
+	}
+
+	responses.JSON(w, http.StatusNoContent, nil)
 }
 
 // DeleteUser gets the user inside database
