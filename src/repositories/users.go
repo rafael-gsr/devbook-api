@@ -84,6 +84,20 @@ func (repository Users) FindByID(ID uint64) (model.User, error) {
 }
 
 
+func (repository Users) Update(ID uint64, body model.User) error {
+	statement, error := repository.db.Prepare("update users set name = ?, nick = ?, email = ? where id = ?")
+	if error != nil {
+		return error
+	}
+
+	_, error = statement.Exec(body.Name, body.Nick, body.Email, ID)
+	if error != nil {
+		return error
+	}
+
+	return nil
+}
+
 func (repository Users) Delete(ID uint64) error {
 	statement, error := repository.db.Prepare("delete from users where id = ?")
 	if error != nil {
