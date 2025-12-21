@@ -8,6 +8,7 @@ func Hash(value string) ([]byte, error) {
 	return bcrypt.GenerateFromPassword([]byte(value), bcrypt.DefaultCost)
 }
 
+// VerifyPassword checks if the password is correct
 func VerifyPassword(password, hashedPassword string) error {
 	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
 }
