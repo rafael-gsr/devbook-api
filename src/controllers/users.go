@@ -2,17 +2,29 @@
 package controllers
 
 import (
+	"database/sql"
 	"encoding/json"
 	"io"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"api/src/database"
 	"api/src/model"
 	"api/src/repositories"
 	"api/src/responses"
+
+	"github.com/gorilla/mux"
 )
+
+// closeDB closes the database connection and treats it error
+func closeDB(db *sql.DB) {
+	error := db.Close()
+	if error != nil {
+		log.Print("Error while closing the DB: ", error)
+	}
+}
 
 // GetUser gets the user inside database
 func GetUser(w http.ResponseWriter, r *http.Request) {
@@ -20,14 +32,16 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 	db, error := database.Connect()
 	if error != nil {
 		responses.Error(w, http.StatusInternalServerError, error)
+		return
 	}
-	defer db.Close()
+	defer closeDB(db)
 
 	repository := repositories.NewUserRepository(db)
 
 	users, error := repository.Find(nameOrNick)
 	if error != nil {
 		responses.Error(w, http.StatusBadRequest, error)
+		return
 	}
 
 	responses.JSON(w, http.StatusOK, users)
