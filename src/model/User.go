@@ -58,8 +58,19 @@ func (user *User) validateIsEmpty(step string) error {
 	return nil
 }
 
-func (user *User) format() {
+func (user *User) format(step string) error {
 	user.Name = strings.TrimSpace(user.Name)
 	user.Nick = strings.TrimSpace(user.Nick)
 	user.Email = strings.TrimSpace(user.Email)
+
+	if step == "create" {
+		hashedPassword, error := security.Hash(user.Password)
+		if error != nil {
+			return error
+		}
+
+		user.Password = string(hashedPassword)
+	}
+
+	return nil
 }
