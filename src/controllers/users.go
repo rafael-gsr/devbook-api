@@ -160,7 +160,27 @@ func PutUser(w http.ResponseWriter, r *http.Request) {
 
 // DeleteUser gets the user inside database
 func DeleteUser(w http.ResponseWriter, r *http.Request) {
-	if _, error := w.Write([]byte("get")); error != nil {
-		log.Fatal(error)
+	params := mux.Vars(r)
+	ID, error := strconv.ParseUint(params["userID"], 10, 64)
+	if error != nil {
+		responses.Error(w, http.StatusBadRequest, error)
+		return
 	}
+
+	db, error := database.Connect()
+	if error != nil {
+		responses.Error(w, http.StatusInternalServerError, error)
+		return
+	}
+	defer closeDB(db)
+
+	repository := repositories.NewUserRepository(db)
+
+	error = repository.Delete(ID)
+	if error != nil {
+		responses.Error(w, http.StatusInternalServerError, error)
+		return
+	}
+
+	responses.JSON(w, http.StatusNoContent, nil)
 }
