@@ -5,11 +5,19 @@ meta {
 }
 
 post {
-  url: {{base-url}}
-  body: none
+  url: {{base-url}}/login
+  body: json
   auth: inherit
+}
+
+body:json {
+  {
+    "email": "example@email.com",
+    "password": "secret"
+  }
 }
 
 settings {
   encodeUrl: true
+  timeout: 0
 }
