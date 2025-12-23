@@ -1,0 +1,28 @@
+meta {
+  name: update
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{base-url}}/users/1
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRob3JpemVkIjp0cnVlLCJleHAiOjE3NjYzNzU3MTYsInVzZXJJRCI6Mn0.qWYkB6OkCbf86RhbYvCNnoqQaDxfJi4ZX1rGdinPjzU
+}
+
+body:json {
+  {
+    "name": "test-editted",
+    "nick": "somenick editted",
+    "email": "example-editted@email.com"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
