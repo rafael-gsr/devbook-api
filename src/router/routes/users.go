@@ -25,20 +25,20 @@ var UsersRoute = []Route{
 		URI:       "/users/{userID}",
 		Method:    http.MethodGet,
 		Function:  controllers.GetUserByID,
-		NeedsAuth: false,
+		NeedsAuth: true,
 	},
 
 	{
 		URI:       "/users/{userID}",
 		Method:    http.MethodDelete,
 		Function:  controllers.DeleteUser,
-		NeedsAuth: false,
+		NeedsAuth: true,
 	},
 
 	{
 		URI:       "/users/{userID}",
 		Method:    http.MethodPut,
 		Function:  controllers.PutUser,
-		NeedsAuth: false,
+		NeedsAuth: true,
 	},
 }
