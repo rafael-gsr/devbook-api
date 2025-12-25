@@ -106,6 +106,7 @@ func (repository Users) Update(ID uint64, body model.User) error {
 	if error != nil {
 		return error
 	}
+	defer statement.Close()
 
 	_, error = statement.Exec(body.Name, body.Nick, body.Email, ID)
 	if error != nil {
@@ -120,6 +121,7 @@ func (repository Users) Delete(ID uint64) error {
 	if error != nil {
 		return error
 	}
+	defer statement.Close()
 
 	_, error = statement.Exec(ID)
 	if error != nil {
@@ -137,6 +139,21 @@ func (repository Users) Follow(userID, IDToFollow uint64) error {
 	defer statement.Close()
 
 	_, error = statement.Exec(userID, IDToFollow)
+	if error != nil {
+		return error
+	}
+
+	return nil
+}
+
+func (repository Users) Unfollow(userID, IDToUnfollow uint64) error {
+	statement, error := repository.db.Prepare("DELETE FROM followers where user_id=? AND follower_id=?")
+	if error != nil {
+		return error
+	}
+	defer statement.Close()
+
+	_, error = statement.Exec(userID, IDToUnfollow)
 	if error != nil {
 		return error
 	}
