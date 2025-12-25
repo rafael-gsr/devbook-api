@@ -209,3 +209,41 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 
 	responses.JSON(w, http.StatusNoContent, nil)
 }
+
+// FollowUser links two users as followers
+func FollowUser(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+
+	IDToFollow, error := strconv.ParseUint(params["userID"], 10, 64)
+	if error != nil {
+		responses.Error(w, http.StatusBadRequest, error)
+		return
+	}
+
+	userID, error := authorization.ExtractUserID(r)
+	if error != nil {
+
+		responses.Error(w, http.StatusUnauthorized, error)
+		return
+	}
+
+	if IDToFollow == userID {
+		responses.Error(w, http.StatusBadRequest, errors.New("the user cannnot follow himself"))
+		return
+	}
+
+	db, error := database.Connect()
+	if error != nil {
+		responses.Error(w, http.StatusInternalServerError, error)
+		return
+	}
+	defer closeDB(db)
+
+	repository := repositories.NewUserRepository(db)
+	if error = repository.Follow(userID, IDToFollow); error != nil {
+		responses.Error(w, http.StatusInternalServerError, error)
+		return
+	}
+
+	responses.JSON(w, http.StatusNoContent, nil)
+}

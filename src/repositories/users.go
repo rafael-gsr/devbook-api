@@ -128,3 +128,18 @@ func (repository Users) Delete(ID uint64) error {
 
 	return nil
 }
+
+func (repository Users) Follow(userID, IDToFollow uint64) error {
+	statement, error := repository.db.Prepare("INSERT IGNORE INTO followers (user_id, follower_id) values (?, ?)")
+	if error != nil {
+		return error
+	}
+	defer statement.Close()
+
+	_, error = statement.Exec(userID, IDToFollow)
+	if error != nil {
+		return error
+	}
+
+	return nil
+}

@@ -41,4 +41,11 @@ var UsersRoute = []Route{
 		Function:  controllers.PutUser,
 		NeedsAuth: true,
 	},
+
+	{
+		URI:       "/users/{userID}/follow",
+		Method:    http.MethodPost,
+		Function:  controllers.FollowUser,
+		NeedsAuth: true,
+	},
 }
