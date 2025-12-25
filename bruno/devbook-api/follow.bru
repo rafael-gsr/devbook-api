@@ -1,0 +1,20 @@
+meta {
+  name: follow
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{base-url}}/users/2/follow
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRob3JpemVkIjp0cnVlLCJleHAiOjE3NjY3MDc2NjMsInVzZXJJRCI6MX0.-u0zDwKhDx0JPnMEYEtlcjCfY49OSTIcSqm3DwbiR8s
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
