@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -13,6 +14,7 @@ import (
 	jwt "github.com/dgrijalva/jwt-go"
 )
 
+// GenerateToken creates a new JWT token with the associated permissions
 func GenerateToken(ID uint64) (string, error) {
 	perms := jwt.MapClaims{}
 
@@ -23,6 +25,29 @@ func GenerateToken(ID uint64) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, perms)
 
 	return token.SignedString([]byte(config.SecretKey))
+}
+
+// ExtractUserID extracts from the request the user id
+func ExtractUserID(r *http.Request) (uint64, error) {
+	token := extractToken(r)
+	parsedToken, error := jwt.Parse(token, getSecretSalt)
+	if error != nil {
+		return 0, error
+	}
+
+	if permissions, ok := parsedToken.Claims.(jwt.MapClaims); ok && parsedToken.Valid {
+		tokenUserID := fmt.Sprintf("%.0f", permissions["userID"])
+		userID, error := strconv.ParseUint(tokenUserID, 10, 64)
+
+		if error != nil {
+			return 0, error
+		}
+
+		return userID, nil
+
+	}
+
+	return 0, errors.New("invalid token")
 }
 
 // ValidateToken validate if the request token is valid

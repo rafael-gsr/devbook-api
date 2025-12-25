@@ -4,12 +4,14 @@ package controllers
 import (
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"io"
 	"log"
 	"net/http"
 	"strconv"
 	"strings"
 
+	"api/src/authorization"
 	"api/src/database"
 	"api/src/model"
 	"api/src/repositories"
@@ -117,9 +119,21 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 // PutUser gets the user inside database
 func PutUser(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
+
 	ID, error := strconv.ParseUint(params["userID"], 10, 64)
 	if error != nil {
 		responses.Error(w, http.StatusBadRequest, error)
+		return
+	}
+
+	tokenID, error := authorization.ExtractUserID(r)
+	if error != nil {
+		responses.Error(w, http.StatusUnauthorized, error)
+		return
+	}
+
+	if ID != tokenID {
+		responses.Error(w, http.StatusForbidden, errors.New("the user do not have the permisssions to perform this actions"))
 		return
 	}
 
@@ -164,6 +178,17 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	ID, error := strconv.ParseUint(params["userID"], 10, 64)
 	if error != nil {
 		responses.Error(w, http.StatusBadRequest, error)
+		return
+	}
+
+	tokenUserID, error := authorization.ExtractUserID(r)
+	if error != nil {
+		responses.Error(w, http.StatusUnauthorized, error)
+		return
+	}
+
+	if tokenUserID != ID {
+		responses.Error(w, http.StatusForbidden, errors.New("the user cannot perform this action"))
 		return
 	}
 
