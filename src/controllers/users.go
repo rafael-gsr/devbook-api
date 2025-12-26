@@ -286,3 +286,29 @@ func UnfollowUser(w http.ResponseWriter, r *http.Request) {
 
 	responses.JSON(w, http.StatusNoContent, nil)
 }
+
+func UserFollowers(w http.ResponseWriter, r *http.Request) {
+	ID, error := authorization.ExtractUserID(r)
+	if error != nil {
+		responses.Error(w, http.StatusUnauthorized, error)
+		return
+	}
+
+	db, error := database.Connect()
+	if error != nil {
+		responses.Error(w, http.StatusInternalServerError, error)
+		return
+	}
+
+	defer closeDB(db)
+
+	repository := repositories.NewUserRepository(db)
+
+	followers, error := repository.UserFollowers(ID)
+	if error != nil {
+		responses.Error(w, http.StatusBadRequest, error)
+		return
+	}
+
+	responses.JSON(w, http.StatusOK, followers)
+}
