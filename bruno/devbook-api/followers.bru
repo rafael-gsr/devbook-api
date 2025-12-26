@@ -1,11 +1,11 @@
 meta {
-  name: unfollow
+  name: followers
   type: http
-  seq: 6
+  seq: 7
 }
 
-post {
-  url: {{base-url}}/users/2/unfollow
+get {
+  url: {{base-url}}/users/followers
   body: none
   auth: inherit
 }
