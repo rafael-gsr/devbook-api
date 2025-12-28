@@ -101,6 +101,38 @@ func (repository Users) GetPasswordAndID(email string) (model.User, error) {
 	return user, nil
 }
 
+func (repository Users) FindPassword(id uint64) (string, error) {
+	line, error := repository.db.Query("SELECT password FROM users WHERE id = ?", id)
+	if error != nil {
+		return "", error
+	}
+	defer line.Close()
+
+	var password string
+	if line.Next() {
+		if error = line.Scan(&password); error != nil {
+			return "", error
+		}
+	}
+
+	return password, nil
+}
+
+func (repository Users) ChangePassword(userID uint64, newPassword string) error {
+	changeScript, error := repository.db.Prepare("UPDATE users SET password = ? where id = ?")
+	if error != nil {
+		return error
+	}
+	defer changeScript.Close()
+
+	_, error = changeScript.Exec(newPassword, userID)
+	if error != nil {
+		return error
+	}
+
+	return nil
+}
+
 func (repository Users) Update(ID uint64, body model.User) error {
 	statement, error := repository.db.Prepare("update users set name = ?, nick = ?, email = ? where id = ?")
 	if error != nil {

@@ -69,4 +69,11 @@ var UsersRoute = []Route{
 		Function:  controllers.UnfollowUser,
 		NeedsAuth: true,
 	},
+
+	{
+		URI:       "/users/change-password",
+		Method:    http.MethodPost,
+		Function:  controllers.ChangePassword,
+		NeedsAuth: true,
+	},
 }

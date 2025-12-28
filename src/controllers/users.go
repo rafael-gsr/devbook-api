@@ -16,6 +16,7 @@ import (
 	"api/src/model"
 	"api/src/repositories"
 	"api/src/responses"
+	"api/src/security"
 
 	"github.com/gorilla/mux"
 )
@@ -287,6 +288,7 @@ func UnfollowUser(w http.ResponseWriter, r *http.Request) {
 	responses.JSON(w, http.StatusNoContent, nil)
 }
 
+// FindFollowers gets all the users that is following the current user
 func FindFollowers(w http.ResponseWriter, r *http.Request) {
 	ID, error := authorization.ExtractUserID(r)
 	if error != nil {
@@ -313,6 +315,7 @@ func FindFollowers(w http.ResponseWriter, r *http.Request) {
 	responses.JSON(w, http.StatusOK, followers)
 }
 
+// FindFollowing gets all the users that the current user is following
 func FindFollowing(w http.ResponseWriter, r *http.Request) {
 	ID, error := authorization.ExtractUserID(r)
 	if error != nil {
@@ -337,4 +340,60 @@ func FindFollowing(w http.ResponseWriter, r *http.Request) {
 	}
 
 	responses.JSON(w, http.StatusOK, following)
+}
+
+// ChangePassword updates the current password of the user
+func ChangePassword(w http.ResponseWriter, r *http.Request) {
+	ID, error := authorization.ExtractUserID(r)
+	if error != nil {
+		responses.Error(w, http.StatusUnauthorized, error)
+		return
+	}
+
+	body, error := io.ReadAll(r.Body)
+	if error != nil {
+		responses.Error(w, http.StatusBadRequest, error)
+		return
+	}
+
+	var passwords model.ChangePassword
+	error = json.Unmarshal(body, &passwords)
+	if error != nil {
+		responses.Error(w, http.StatusBadRequest, error)
+		return
+	}
+
+	db, error := database.Connect()
+	if error != nil {
+		responses.Error(w, http.StatusInternalServerError, error)
+		return
+	}
+	defer closeDB(db)
+
+	repository := repositories.NewUserRepository(db)
+
+	currentPassword, error := repository.FindPassword(ID)
+	if error != nil {
+		responses.Error(w, http.StatusInternalServerError, error)
+		return
+	}
+
+	if error = security.VerifyPassword(passwords.Old, currentPassword); error != nil {
+		responses.Error(w, http.StatusForbidden, error)
+		return
+	}
+
+	newHashed, error := security.Hash(passwords.New)
+	if error != nil {
+		responses.Error(w, http.StatusBadRequest, error)
+		return
+	}
+
+	error = repository.ChangePassword(ID, string(newHashed))
+	if error != nil {
+		responses.Error(w, http.StatusInternalServerError, error)
+		return
+	}
+
+	responses.JSON(w, http.StatusNoContent, nil)
 }
