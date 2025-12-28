@@ -287,7 +287,7 @@ func UnfollowUser(w http.ResponseWriter, r *http.Request) {
 	responses.JSON(w, http.StatusNoContent, nil)
 }
 
-func UserFollowers(w http.ResponseWriter, r *http.Request) {
+func FindFollowers(w http.ResponseWriter, r *http.Request) {
 	ID, error := authorization.ExtractUserID(r)
 	if error != nil {
 		responses.Error(w, http.StatusUnauthorized, error)
