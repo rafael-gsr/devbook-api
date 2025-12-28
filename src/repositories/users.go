@@ -181,3 +181,25 @@ func (repository Users) UserFollowers(userID uint64) ([]model.User, error) {
 	}
 	return followers, nil
 }
+
+func (repository Users) UserFollowing(userID uint64) ([]model.User, error) {
+	lines, error := repository.db.Query("SELECT u.id, u.name, u.nick, u.email, u.createdAt FROM users u INNER JOIN followers f on u.id = f.user_id WHERE f.follower_id = ? ", userID)
+	if error != nil {
+		return nil, error
+	}
+	defer lines.Close()
+
+	var following []model.User
+
+	for lines.Next() {
+		var follower model.User
+
+		if error = lines.Scan(&follower.ID, &follower.Name, &follower.Nick, &follower.Email, &follower.CreatedAt); error != nil {
+			return nil, error
+		}
+
+		following = append(following, follower)
+	}
+
+	return following, nil
+}

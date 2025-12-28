@@ -312,3 +312,29 @@ func FindFollowers(w http.ResponseWriter, r *http.Request) {
 
 	responses.JSON(w, http.StatusOK, followers)
 }
+
+func FindFollowing(w http.ResponseWriter, r *http.Request) {
+	ID, error := authorization.ExtractUserID(r)
+	if error != nil {
+		responses.Error(w, http.StatusUnauthorized, errors.New("unauthorized"))
+		return
+	}
+
+	db, error := database.Connect()
+	if error != nil {
+		responses.Error(w, http.StatusInternalServerError, error)
+		return
+
+	}
+	defer closeDB(db)
+
+	repository := repositories.NewUserRepository(db)
+
+	following, error := repository.UserFollowing(ID)
+	if error != nil {
+		responses.Error(w, http.StatusBadRequest, error)
+		return
+	}
+
+	responses.JSON(w, http.StatusOK, following)
+}
