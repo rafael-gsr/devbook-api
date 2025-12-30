@@ -21,6 +21,7 @@ type Route struct {
 func Configure(r *mux.Router) *mux.Router {
 	routes := UsersRoute
 	routes = append(routes, loginRoute)
+	routes = append(routes, publicationRoutes...)
 
 	for _, route := range routes {
 		loggedHandlerFunc := middleware.Logger(route.Function)

@@ -1,0 +1,44 @@
+package routes
+
+import (
+	"net/http"
+
+	"api/src/controllers"
+)
+
+var publicationRoutes = []Route{
+	{
+		URI:       "/posts",
+		Method:    http.MethodGet,
+		Function:  controllers.GetPosts,
+		NeedsAuth: true,
+	},
+
+	{
+		URI:       "/posts/{publicationID}",
+		Method:    http.MethodGet,
+		Function:  controllers.GetPostByID,
+		NeedsAuth: true,
+	},
+
+	{
+		URI:       "/posts",
+		Method:    http.MethodPost,
+		Function:  controllers.CreatePost,
+		NeedsAuth: true,
+	},
+
+	{
+		URI:       "posts",
+		Method:    http.MethodPatch,
+		Function:  controllers.UpdatePost,
+		NeedsAuth: true,
+	},
+
+	{
+		URI:       "posts",
+		Method:    http.MethodDelete,
+		Function:  controllers.DeletePost,
+		NeedsAuth: true,
+	},
+}
