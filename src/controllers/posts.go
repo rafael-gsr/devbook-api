@@ -1,9 +1,56 @@
 package controllers
 
-import "net/http"
+import (
+	"encoding/json"
+	"io"
+	"net/http"
+	"strconv"
 
-func GetPosts(w http.ResponseWriter, r *http.Request)    {}
-func GetPostByID(w http.ResponseWriter, r *http.Request) {}
-func CreatePost(w http.ResponseWriter, r *http.Request)  {}
-func UpdatePost(w http.ResponseWriter, r *http.Request)  {}
-func DeletePost(w http.ResponseWriter, r *http.Request)  {}
+	"api/src/authorization"
+	"api/src/database"
+	"api/src/model"
+	"api/src/repositories"
+	"api/src/responses"
+
+	"github.com/gorilla/mux"
+)
+
+// CreatePost creates a new post and saves it on the DB
+func CreatePost(w http.ResponseWriter, r *http.Request) {
+	body, error := io.ReadAll(r.Body)
+	if error != nil {
+		responses.Error(w, http.StatusBadRequest, error)
+		return
+	}
+
+	ID, error := authorization.ExtractUserID(r)
+	if error != nil {
+		responses.Error(w, http.StatusUnauthorized, error)
+		return
+	}
+
+	post := model.Post{AuthorID: ID}
+
+	if error = json.Unmarshal(body, &post); error != nil {
+		responses.Error(w, http.StatusBadRequest, error)
+		return
+	}
+
+	db, error := database.Connect()
+	if error != nil {
+		responses.Error(w, http.StatusInternalServerError, error)
+		return
+	}
+	defer closeDB(db)
+
+	repository := repositories.CreateNewPostRepository(db)
+
+	post.ID, error = repository.Create(post)
+	if error != nil {
+		responses.Error(w, http.StatusBadRequest, error)
+		return
+	}
+
+	responses.JSON(w, http.StatusCreated, post)
+}
+

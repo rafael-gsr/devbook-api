@@ -6,7 +6,7 @@ import (
 	"api/src/controllers"
 )
 
-var publicationRoutes = []Route{
+var postsRoutes = []Route{
 	{
 		URI:       "/posts",
 		Method:    http.MethodGet,
@@ -15,7 +15,7 @@ var publicationRoutes = []Route{
 	},
 
 	{
-		URI:       "/posts/{publicationID}",
+		URI:       "/posts/{postID}",
 		Method:    http.MethodGet,
 		Function:  controllers.GetPostByID,
 		NeedsAuth: true,

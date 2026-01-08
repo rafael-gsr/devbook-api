@@ -1,0 +1,23 @@
+meta {
+  name: create post
+  type: http
+  seq: 10
+}
+
+post {
+  url: {{base-url}}/posts
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "title": "POST TITLE",
+    "content": "POST CONTENT"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
