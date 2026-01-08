@@ -1,0 +1,16 @@
+meta {
+  name: get one post
+  type: http
+  seq: 11
+}
+
+get {
+  url: {{base-url}}/posts/1
+  body: json
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

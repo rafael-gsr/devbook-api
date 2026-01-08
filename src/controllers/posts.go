@@ -54,3 +54,34 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 	responses.JSON(w, http.StatusCreated, post)
 }
 
+func GetPosts(w http.ResponseWriter, r *http.Request) {}
+
+func GetPostByID(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+
+	postID, error := strconv.ParseUint(params["postID"], 10, 64)
+	if error != nil {
+		responses.Error(w, http.StatusBadRequest, error)
+		return
+	}
+
+	db, error := database.Connect()
+	if error != nil {
+		responses.Error(w, http.StatusInternalServerError, error)
+		return
+	}
+	defer closeDB(db)
+
+	repository := repositories.CreateNewPostRepository(db)
+
+	post, error := repository.FindByID(postID)
+	if error != nil {
+		responses.Error(w, http.StatusBadRequest, error)
+		return
+	}
+
+	responses.JSON(w, http.StatusOK, post)
+}
+
+func UpdatePost(w http.ResponseWriter, r *http.Request) {}
+func DeletePost(w http.ResponseWriter, r *http.Request) {}

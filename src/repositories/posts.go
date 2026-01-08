@@ -35,3 +35,21 @@ func (repository Posts) Create(post model.Post) (uint64, error) {
 	return uint64(ID), nil
 }
 
+// FindByID gets one single post
+func (repository Posts) FindByID(ID uint64) (model.Post, error) {
+	var post model.Post
+
+	query, error := repository.db.Query("select p.id, p.title, p.content, p.author_id, p.createdAt, u.nick from posts p inner join users u on u.id = p.author_id where p.id = ?", ID)
+	if error != nil {
+		return post, error
+	}
+	defer query.Close()
+
+	if query.Next() {
+		if error := query.Scan(&post.ID, &post.Title, &post.Content, &post.AuthorID, &post.CreatedAt, &post.AuthorNick); error != nil {
+			return post, error
+		}
+	}
+
+	return post, nil
+}
