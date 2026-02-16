@@ -54,7 +54,30 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 	responses.JSON(w, http.StatusCreated, post)
 }
 
-func GetPosts(w http.ResponseWriter, r *http.Request) {}
+func GetPosts(w http.ResponseWriter, r *http.Request) {
+	userID, error := authorization.ExtractUserID(r)
+	if error != nil {
+		responses.Error(w, http.StatusUnauthorized, error)
+		return
+	}
+
+	db, error := database.Connect()
+	if error != nil {
+		responses.Error(w, http.StatusInternalServerError, error)
+		return
+	}
+	defer closeDB(db)
+
+	repository := repositories.CreateNewPostRepository(db)
+	posts, error := repository.Find(userID)
+
+	if error != nil {
+		responses.Error(w, http.StatusInternalServerError, error)
+		return
+	}
+
+	responses.JSON(w, http.StatusOK, posts)
+}
 
 func GetPostByID(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
