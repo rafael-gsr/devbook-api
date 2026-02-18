@@ -1,0 +1,26 @@
+meta {
+  name: update post
+  type: http
+  seq: 12
+}
+
+patch {
+  url: {{base-url}}/posts/1
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "title": "POST TITLE edited",
+    "content": "POST CONTENT edited",
+    "authorId": 2,
+    "authorNick": "USER_3_NICK",
+    "createdAt": "2026-01-03T22:54:22-03:00"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
