@@ -29,14 +29,14 @@ var postsRoutes = []Route{
 	},
 
 	{
-		URI:       "posts",
+		URI:       "/posts/{postID}",
 		Method:    http.MethodPatch,
 		Function:  controllers.UpdatePost,
 		NeedsAuth: true,
 	},
 
 	{
-		URI:       "posts",
+		URI:       "/posts",
 		Method:    http.MethodDelete,
 		Function:  controllers.DeletePost,
 		NeedsAuth: true,

@@ -54,6 +54,7 @@ func (repository Posts) FindByID(ID uint64) (model.Post, error) {
 	return post, nil
 }
 
+// Find all the posts
 func (repository *Posts) Find(userID uint64) ([]model.Post, error) {
 	lines, error := repository.db.Query("select p.title, p.content, p.likes, p.createdAt, u.nick from posts p inner join users u on p.author_id = u.id where u.id = ?", userID)
 	if error != nil {
@@ -75,4 +76,20 @@ func (repository *Posts) Find(userID uint64) ([]model.Post, error) {
 	}
 
 	return posts, nil
+}
+
+// Update changes the posts properites
+func (repository *Posts) Update(postID uint64, fieldToUpdate model.Post) error {
+	statement, error := repository.db.Prepare("update posts set title = ?,  content = ? where id = ?")
+	if error != nil {
+		return error
+	}
+	defer statement.Close()
+
+	_, error = statement.Exec(fieldToUpdate.Title, fieldToUpdate.Content, postID)
+	if error != nil {
+		return error
+	}
+
+	return nil
 }

@@ -106,5 +106,62 @@ func GetPostByID(w http.ResponseWriter, r *http.Request) {
 	responses.JSON(w, http.StatusOK, post)
 }
 
-func UpdatePost(w http.ResponseWriter, r *http.Request) {}
+func UpdatePost(w http.ResponseWriter, r *http.Request) {
+	userID, error := authorization.ExtractUserID(r)
+	if error != nil {
+		responses.Error(w, http.StatusUnauthorized, error)
+		return
+	}
+
+	params := mux.Vars(r)
+	postID, error := strconv.ParseUint(params["postID"], 10, 64)
+	if error != nil {
+		responses.Error(w, http.StatusBadRequest, error)
+		return
+	}
+
+	db, error := database.Connect()
+	if error != nil {
+		responses.Error(w, http.StatusInternalServerError, error)
+		return
+	}
+	defer closeDB(db)
+
+	repository := repositories.CreateNewPostRepository(db)
+	postToEdit, error := repository.FindByID(postID)
+	if error != nil {
+		responses.Error(w, http.StatusInternalServerError, error)
+		return
+	}
+
+	if postToEdit.AuthorID != userID {
+		responses.Error(w, http.StatusForbidden, error)
+		return
+	}
+
+	body, error := io.ReadAll(r.Body)
+	if error != nil {
+		responses.Error(w, http.StatusBadRequest, error)
+		return
+	}
+
+	var post model.Post
+	if error = json.Unmarshal(body, &post); error != nil {
+		responses.Error(w, http.StatusInternalServerError, error)
+		return
+	}
+
+	if error = post.Prepare(); error != nil {
+		responses.Error(w, http.StatusBadRequest, error)
+		return
+	}
+
+	if error = repository.Update(postID, post); error != nil {
+		responses.Error(w, http.StatusInternalServerError, error)
+		return
+	}
+
+	responses.JSON(w, http.StatusNoContent, nil)
+}
+
 func DeletePost(w http.ResponseWriter, r *http.Request) {}
