@@ -93,3 +93,19 @@ func (repository *Posts) Update(postID uint64, fieldToUpdate model.Post) error {
 
 	return nil
 }
+
+// Delete the post
+func (repository *Posts) Delete(postID uint64) error {
+	statement, error := repository.db.Prepare("delete from posts where id = ?")
+	if error != nil {
+		return error
+	}
+	defer statement.Close()
+
+	_, error = statement.Exec(postID)
+	if error != nil {
+		return error
+	}
+
+	return nil
+}

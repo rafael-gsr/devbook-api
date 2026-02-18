@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 	"strconv"
@@ -135,7 +136,7 @@ func UpdatePost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if postToEdit.AuthorID != userID {
-		responses.Error(w, http.StatusForbidden, error)
+		responses.Error(w, http.StatusForbidden, errors.New("it is not possible to edit a posts that don't belongs to you"))
 		return
 	}
 
@@ -164,4 +165,45 @@ func UpdatePost(w http.ResponseWriter, r *http.Request) {
 	responses.JSON(w, http.StatusNoContent, nil)
 }
 
-func DeletePost(w http.ResponseWriter, r *http.Request) {}
+func DeletePost(w http.ResponseWriter, r *http.Request) {
+	userID, error := authorization.ExtractUserID(r)
+	if error != nil {
+		responses.Error(w, http.StatusUnauthorized, error)
+		return
+	}
+
+	params := mux.Vars(r)
+	postID, error := strconv.ParseUint(params["postID"], 10, 64)
+	if error != nil {
+		responses.Error(w, http.StatusBadRequest, error)
+		return
+	}
+
+	db, error := database.Connect()
+	if error != nil {
+		responses.Error(w, http.StatusInternalServerError, error)
+		return
+	}
+	defer closeDB(db)
+
+	repository := repositories.CreateNewPostRepository(db)
+
+	postToBeDeleted, error := repository.FindByID(postID)
+	if error != nil {
+		responses.Error(w, http.StatusInternalServerError, error)
+		return
+	}
+
+	if postToBeDeleted.AuthorID != userID {
+		responses.Error(w, http.StatusForbidden, errors.New("it is not possible to delete a post that don't belongs to you"))
+		return
+	}
+
+	error = repository.Delete(postID)
+	if error != nil {
+		responses.Error(w, http.StatusInternalServerError, error)
+		return
+	}
+
+	responses.JSON(w, http.StatusNoContent, nil)
+}
