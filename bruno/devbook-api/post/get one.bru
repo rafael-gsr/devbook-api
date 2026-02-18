@@ -1,12 +1,12 @@
 meta {
-  name: following
+  name: get one
   type: http
-  seq: 8
+  seq: 2
 }
 
 get {
-  url: {{base-url}}/users/following
-  body: none
+  url: {{base-url}}/posts/1
+  body: json
   auth: inherit
 }
 

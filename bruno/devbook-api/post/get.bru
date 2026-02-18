@@ -1,20 +1,13 @@
 meta {
-  name: create post
+  name: get
   type: http
-  seq: 10
+  seq: 4
 }
 
-post {
+get {
   url: {{base-url}}/posts
   body: json
   auth: inherit
-}
-
-body:json {
-  {
-    "title": "POST TITLE",
-    "content": "POST CONTENT"
-  }
 }
 
 settings {
