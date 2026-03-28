@@ -15,6 +15,13 @@ var postsRoutes = []Route{
 	},
 
 	{
+		URI:       "/posts/like/{postID}",
+		Method:    http.MethodPut,
+		Function:  controllers.LikePost,
+		NeedsAuth: true,
+	},
+
+	{
 		URI:       "/posts/{postID}",
 		Method:    http.MethodGet,
 		Function:  controllers.GetPostByID,
