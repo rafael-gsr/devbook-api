@@ -3,9 +3,11 @@ package controllers
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"strconv"
+	"time"
 
 	"api/src/authorization"
 	"api/src/database"
@@ -36,6 +38,7 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 		responses.Error(w, http.StatusBadRequest, error)
 		return
 	}
+	post.CreatedAt = time.Now()
 
 	db, error := database.Connect()
 	if error != nil {
@@ -208,5 +211,42 @@ func DeletePost(w http.ResponseWriter, r *http.Request) {
 	responses.JSON(w, http.StatusNoContent, nil)
 }
 
-func UpdatePost(w http.ResponseWriter, r *http.Request) {}
-func DeletePost(w http.ResponseWriter, r *http.Request) {}
+func LikePost(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	postID, error := strconv.ParseUint(params["postID"], 10, 64)
+	if error != nil {
+		responses.Error(w, http.StatusBadRequest, error)
+		return
+	}
+
+	db, error := database.Connect()
+	if error != nil {
+		responses.Error(w, http.StatusInternalServerError, error)
+		return
+	}
+	defer closeDB(db)
+
+	repository := repositories.CreateNewPostRepository(db)
+
+	post, error := repository.FindByID(postID)
+	if error != nil {
+		responses.Error(w, http.StatusInternalServerError, error)
+		return
+	}
+
+	if post.ID == 0 {
+		responses.Error(w, http.StatusBadRequest, errors.New("post not found"))
+		return
+	}
+
+	post.Likes++
+	fmt.Println(post.Likes)
+
+	error = repository.Update(postID, post)
+	if error != nil {
+		responses.Error(w, http.StatusInternalServerError, error)
+		return
+	}
+
+	responses.JSON(w, http.StatusNoContent, nil)
+}

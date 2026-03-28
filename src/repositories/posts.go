@@ -39,14 +39,14 @@ func (repository Posts) Create(post model.Post) (uint64, error) {
 func (repository Posts) FindByID(ID uint64) (model.Post, error) {
 	var post model.Post
 
-	query, error := repository.db.Query("select p.id, p.title, p.content, p.author_id, p.createdAt, u.nick from posts p inner join users u on u.id = p.author_id where p.id = ?", ID)
+	query, error := repository.db.Query("select p.id, p.title, p.content, p.likes, p.author_id, p.createdAt, u.nick from posts p inner join users u on u.id = p.author_id where p.id = ?", ID)
 	if error != nil {
 		return post, error
 	}
 	defer query.Close()
 
 	if query.Next() {
-		if error := query.Scan(&post.ID, &post.Title, &post.Content, &post.AuthorID, &post.CreatedAt, &post.AuthorNick); error != nil {
+		if error := query.Scan(&post.ID, &post.Title, &post.Content, &post.Likes, &post.AuthorID, &post.CreatedAt, &post.AuthorNick); error != nil {
 			return post, error
 		}
 	}
@@ -80,13 +80,13 @@ func (repository *Posts) Find(userID uint64) ([]model.Post, error) {
 
 // Update changes the posts properites
 func (repository *Posts) Update(postID uint64, fieldToUpdate model.Post) error {
-	statement, error := repository.db.Prepare("update posts set title = ?,  content = ? where id = ?")
+	statement, error := repository.db.Prepare("update posts set title = ?, content = ?, likes = ? where id = ?")
 	if error != nil {
 		return error
 	}
 	defer statement.Close()
 
-	_, error = statement.Exec(fieldToUpdate.Title, fieldToUpdate.Content, postID)
+	_, error = statement.Exec(fieldToUpdate.Title, fieldToUpdate.Content, fieldToUpdate.Likes, postID)
 	if error != nil {
 		return error
 	}
