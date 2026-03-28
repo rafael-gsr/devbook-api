@@ -22,18 +22,20 @@ var (
 
 // LoadEnv initialize the env variables
 func LoadEnv() {
-	var error error
-
-	if error = godotenv.Load(".env"); error != nil {
+	if error := godotenv.Load(".env"); error != nil {
 		log.Fatal(error)
 	}
 
 	Port = os.Getenv("API_PORT")
 	SecretKey = os.Getenv("JWT_SALT")
 
+	dbUser := os.Getenv("DB_USER")
+	dbName := os.Getenv("DB_NAME")
+	dbPassword := os.Getenv("DB_PASSWORD")
+
 	if len(Port) == 0 {
 		Port = ":9000"
 	}
 
-	MySQLConnection = fmt.Sprintf("%s:%s@/%s?charset=utf8&parseTime=True&loc=Local", os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_NAME"))
+	MySQLConnection = fmt.Sprintf("%s:%s@/%s?charset=utf8&parseTime=True&loc=Local", dbUser, dbPassword, dbName)
 }
