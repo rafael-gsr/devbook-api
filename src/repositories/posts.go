@@ -56,7 +56,7 @@ func (repository Posts) FindByID(ID uint64) (model.Post, error) {
 
 // Find all the posts
 func (repository *Posts) Find(userID uint64) ([]model.Post, error) {
-	lines, error := repository.db.Query("select p.title, p.content, p.likes, p.createdAt, u.nick from posts p inner join users u on p.author_id = u.id where u.id = ?", userID)
+	lines, error := repository.db.Query("select p.id, p.title, p.content, p.likes, p.createdAt, u.nick from posts p inner join users u on p.author_id = u.id where u.id = ?", userID)
 	if error != nil {
 		return nil, error
 	}
@@ -67,7 +67,7 @@ func (repository *Posts) Find(userID uint64) ([]model.Post, error) {
 	for lines.Next() {
 		var singlePost model.Post
 
-		error = lines.Scan(&singlePost.Title, &singlePost.Content, &singlePost.Likes, &singlePost.CreatedAt, &singlePost.AuthorNick)
+		error = lines.Scan(&singlePost.ID, &singlePost.Title, &singlePost.Content, &singlePost.Likes, &singlePost.CreatedAt, &singlePost.AuthorNick)
 		if error != nil {
 			return nil, error
 		}
