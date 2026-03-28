@@ -110,6 +110,32 @@ func GetPostByID(w http.ResponseWriter, r *http.Request) {
 	responses.JSON(w, http.StatusOK, post)
 }
 
+func GetPostsByUserID(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	userID, error := strconv.ParseUint(params["userID"], 10, 64)
+	if error != nil {
+		responses.Error(w, http.StatusBadRequest, error)
+		return
+	}
+
+	db, error := database.Connect()
+	if error != nil {
+		responses.Error(w, http.StatusInternalServerError, error)
+		return
+	}
+	defer closeDB(db)
+
+	repository := repositories.CreateNewPostRepository(db)
+
+	posts, error := repository.Find(userID)
+	if error != nil {
+		responses.Error(w, http.StatusInternalServerError, error)
+		return
+	}
+
+	responses.JSON(w, http.StatusOK, posts)
+}
+
 func UpdatePost(w http.ResponseWriter, r *http.Request) {
 	userID, error := authorization.ExtractUserID(r)
 	if error != nil {

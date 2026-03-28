@@ -1,0 +1,16 @@
+meta {
+  name: Get user posts
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{base-url}}/posts/user/2
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

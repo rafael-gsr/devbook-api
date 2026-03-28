@@ -22,6 +22,13 @@ var postsRoutes = []Route{
 	},
 
 	{
+		URI:       "/posts/user/{userID}",
+		Method:    http.MethodGet,
+		Function:  controllers.GetPostsByUserID,
+		NeedsAuth: true,
+	},
+
+	{
 		URI:       "/posts/{postID}",
 		Method:    http.MethodGet,
 		Function:  controllers.GetPostByID,
