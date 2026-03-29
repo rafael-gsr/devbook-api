@@ -22,6 +22,13 @@ var postsRoutes = []Route{
 	},
 
 	{
+		URI:       "/posts/dislike/{postID}",
+		Method:    http.MethodPut,
+		Function:  controllers.DislikePost,
+		NeedsAuth: true,
+	},
+
+	{
 		URI:       "/posts/user/{userID}",
 		Method:    http.MethodGet,
 		Function:  controllers.GetPostsByUserID,

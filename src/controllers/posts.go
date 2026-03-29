@@ -276,3 +276,42 @@ func LikePost(w http.ResponseWriter, r *http.Request) {
 
 	responses.JSON(w, http.StatusNoContent, nil)
 }
+
+func DislikePost(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	postID, error := strconv.ParseUint(params["postID"], 10, 64)
+	if error != nil {
+		responses.Error(w, http.StatusBadRequest, error)
+		return
+	}
+
+	db, error := database.Connect()
+	if error != nil {
+		responses.Error(w, http.StatusInternalServerError, error)
+		return
+	}
+	defer closeDB(db)
+
+	repository := repositories.CreateNewPostRepository(db)
+
+	postToDislike, error := repository.FindByID(postID)
+	if error != nil {
+		responses.Error(w, http.StatusInternalServerError, error)
+		return
+	}
+
+	if postToDislike.ID == 0 {
+		responses.Error(w, http.StatusNotFound, errors.New("the post could not be found"))
+		return
+	}
+
+	postToDislike.Likes--
+
+	error = repository.Update(postID, postToDislike)
+	if error != nil {
+		responses.Error(w, http.StatusInternalServerError, error)
+		return
+	}
+
+	responses.JSON(w, http.StatusNoContent, nil)
+}
